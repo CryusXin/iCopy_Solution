@@ -5,16 +5,20 @@ using System.Windows;
 using iCopy.Services;
 using iCopy.Messages;
 using System.Windows.Input;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace iCopy.ViewModels
 {
     public class PasteContentViewModel : ViewModelBase
     {
         private readonly MessageService _messageService;
+        private readonly ClipboardService _clipboardService;
         private PasteContentWindowSettings _windowSettings;
         private string _content;
         private readonly DispatcherTimer _autoCloseTimer;
         private double _remainingSeconds;
+        private ClipboardItem _selectedItem;
 
         private ICommand _closeWindowCommand;
         public ICommand CloseWindowCommand
@@ -22,6 +26,7 @@ namespace iCopy.ViewModels
             get => _closeWindowCommand;
             private set => SetProperty(ref _closeWindowCommand, value);
         }
+
         public PasteContentWindowSettings WindowSettings
         {
             get => _windowSettings;
@@ -40,9 +45,25 @@ namespace iCopy.ViewModels
             set => SetProperty(ref _remainingSeconds, value);
         }
 
+        public ObservableCollection<ClipboardItem> ClipboardItems => _clipboardService.ClipboardItems;
+
+        public ClipboardItem SelectedItem
+        {
+            get => _selectedItem;
+            set
+            {
+                if (SetProperty(ref _selectedItem, value) && value != null)
+                {
+                    Content = value.Content;
+                    Clipboard.SetText(value.Content);
+                }
+            }
+        }
+
         public PasteContentViewModel()
         {
             _messageService = MessageService.Instance;
+            _clipboardService = ClipboardService.Instance;
             InitializeWindowSettings();
             InitializeCommands();
 
@@ -55,6 +76,12 @@ namespace iCopy.ViewModels
 
             RemainingSeconds = WindowSettings.AutoCloseSeconds;
             _autoCloseTimer.Start();
+
+            // 如果有剪贴板历史，选择最新的一项
+            if (ClipboardItems.Any())
+            {
+                SelectedItem = ClipboardItems.First();
+            }
         }
 
         private void InitializeWindowSettings()
@@ -67,8 +94,11 @@ namespace iCopy.ViewModels
 
                 // 计算窗口尺寸和位置
                 double margin = screenHeight * 0.05; // 5% 边距
-                double windowHeight = screenHeight - (2 * margin);
-                double windowWidth = 100; // 固定宽度
+                double windowHeight = screenHeight - (3 * margin);
+                double windowWidth = 300; // 固定宽度为300像素
+
+                System.Diagnostics.Debug.WriteLine($"Screen size: {screenWidth}x{screenHeight}");
+                System.Diagnostics.Debug.WriteLine($"Window size: {windowWidth}x{windowHeight}");
 
                 WindowSettings = new PasteContentWindowSettings
                 {
@@ -80,6 +110,8 @@ namespace iCopy.ViewModels
                     ShowInTaskbar = false,
                     AutoCloseSeconds = 10
                 };
+
+                System.Diagnostics.Debug.WriteLine($"Window position: Left={WindowSettings.Left}, Top={WindowSettings.Top}");
             }
             catch (Exception ex)
             {

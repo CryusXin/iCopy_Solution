@@ -3,19 +3,64 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="PasteContent"
-    Width="{Binding WindowSettings.Width}"
-    Height="{Binding WindowSettings.Height}"
-    Left="{Binding WindowSettings.Left}"
+    Width="{Binding WindowSettings.Width, Mode=TwoWay}"
+    Height="{Binding WindowSettings.Height, Mode=TwoWay}"
+    Left="{Binding WindowSettings.Left, Mode=TwoWay}"
     ResizeMode="NoResize"
     ShowInTaskbar="{Binding WindowSettings.ShowInTaskbar}"
-    Top="{Binding WindowSettings.Top}"
+    Top="{Binding WindowSettings.Top, Mode=TwoWay}"
     Topmost="{Binding WindowSettings.TopMost}"
-    WindowStyle="None">
+    WindowStyle="None"
+    AllowsTransparency="True"
+    Background="Transparent">
+
+    <Window.Resources>
+        <DropShadowEffect x:Key="DropShadowEffect"
+                         BlurRadius="10"
+                         Direction="0"
+                         ShadowDepth="0"
+                         Color="#22000000"/>
+        
+        <!-- ScrollViewer样式 -->
+        <Style x:Key="ScrollViewerStyle" TargetType="ScrollViewer">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollViewer">
+                        <Grid>
+                            <ScrollContentPresenter />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- TextBox样式 -->
+        <Style x:Key="ContentTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderThickness="0">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                        Style="{StaticResource ScrollViewerStyle}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="AcceptsReturn" Value="True"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+    </Window.Resources>
 
     <Border
         Background="White"
-        BorderBrush="Gray"
-        BorderThickness="1">
+        BorderBrush="#E0E0E0"
+        BorderThickness="1"
+        CornerRadius="10"
+        Effect="{StaticResource DropShadowEffect}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -26,31 +71,49 @@
             <!--  标题栏  -->
             <Border
                 Grid.Row="0"
-                Background="#F0F0F0"
+                Background="#F8F8F8"
+                CornerRadius="10,10,0,0"
                 MouseLeftButtonDown="Border_MouseLeftButtonDown">
                 <Grid Height="30">
                     <TextBlock
-                        Margin="10,0"
+                        Margin="15,0"
                         VerticalAlignment="Center"
-                        Text="粘贴内容" />
-                    
+                        HorizontalAlignment="Center"
+                        FontSize="13"
+                        Foreground="#333333"
+                        Text="iCopy" />
                 </Grid>
             </Border>
 
             <!--  内容区域  -->
-            <ScrollViewer Grid.Row="1" Margin="5">
-                <TextBox
-                    AcceptsReturn="True"
+            <Grid Grid.Row="1" Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <ListBox
+                    ItemsSource="{Binding ClipboardItems}"
+                    SelectedItem="{Binding SelectedItem}"
                     BorderThickness="0"
-                    Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}"
-                    TextWrapping="Wrap" />
-            </ScrollViewer>
+                    Background="Transparent">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock 
+                                Text="{Binding Content}"
+                                TextWrapping="Wrap"
+                                Margin="5"
+                                MaxHeight="50"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
 
             <!--  倒计时显示  -->
             <TextBlock
                 Grid.Row="2"
-                Margin="0,5"
+                Margin="0,5,0,10"
                 HorizontalAlignment="Center"
+                Foreground="#666666"
                 Text="{Binding RemainingSeconds, StringFormat={} 将在 {0:N0} 秒后自动关闭}" />
         </Grid>
     </Border>

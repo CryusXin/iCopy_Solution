@@ -115,18 +115,34 @@ namespace iCopy.ViewModels
                 System.Diagnostics.Debug.WriteLine("ShowPasteWindow called");
                 if (_pasteWindow == null)
                 {
-                    // 先隐藏主窗口
-                    _trayIconService.HideMainWindow();
-
-                    _pasteWindow = new PasteContentView();
-                    _pasteWindow.Closed += (s, e) =>
+                    try
                     {
-                        System.Diagnostics.Debug.WriteLine("PasteWindow closed");
-                        _pasteWindow = null;
-                    };
-                    _pasteWindow.Show();
-                    _pasteWindow.Activate();
-                    System.Diagnostics.Debug.WriteLine("PasteWindow shown and activated");
+                        // 先隐藏主窗口
+                        _trayIconService.HideMainWindow();
+
+                        // 创建并显示新窗口
+                        _pasteWindow = new PasteContentView();
+                        _pasteWindow.Closed += (s, e) =>
+                        {
+                            System.Diagnostics.Debug.WriteLine("PasteWindow closed");
+                            _pasteWindow = null;
+                        };
+
+                        // 确保数据库初始化成功后再显示窗口
+                        var clipboardService = ClipboardService.Instance;
+                        var items = clipboardService.ClipboardItems;
+                        System.Diagnostics.Debug.WriteLine($"Loaded {items.Count} clipboard items");
+
+                        _pasteWindow.Show();
+                        _pasteWindow.Activate();
+                        System.Diagnostics.Debug.WriteLine("PasteWindow shown and activated");
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error initializing PasteWindow: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                        MessageBox.Show($"初始化剪贴板窗口时出错：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
                 else
                 {
@@ -137,6 +153,8 @@ namespace iCopy.ViewModels
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error in ShowPasteWindow: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                MessageBox.Show($"显示剪贴板窗口时出错：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
