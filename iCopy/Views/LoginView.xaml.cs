@@ -78,8 +78,7 @@ namespace iCopy.Views
             else
             {
                 //登录成功
-                MainView mainView = new MainView();
-                mainView.Show();
+                MainView.ShowMainView();
                 this.Close();
             }
         }
@@ -95,8 +94,7 @@ namespace iCopy.Views
 
         private void Button_Click_Local(object sender, RoutedEventArgs e)
         {
-            MainView mainView = new MainView();
-            mainView.Show();
+            MainView.ShowMainView();
             this.Close();
         }
     }

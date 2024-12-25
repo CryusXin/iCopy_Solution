@@ -8,8 +8,33 @@ namespace iCopy.ViewModels
 {
     public class GeneralViewModel : ViewModelBase
     {
-        public string DeviceName { get; } = Environment.MachineName;
-        public string SystemType { get; } = Environment.Is64BitOperatingSystem ? "64位操作系统" : "32位操作系统";
-        public string SystemVersion { get; } = Environment.OSVersion.ToString();
+        private string _computerName;
+        private string _description;
+        private bool _autoManagePageFile;
+        private bool _showAnimations;
+
+        public string ComputerName
+        {
+            get => _computerName;
+            set => SetProperty(ref _computerName, value);
+        }
+
+        public string Description
+        {
+            get => _description;
+            set => SetProperty(ref _description, value);
+        }
+
+        public bool AutoManagePageFile
+        {
+            get => _autoManagePageFile;
+            set => SetProperty(ref _autoManagePageFile, value);
+        }
+
+        public bool ShowAnimations
+        {
+            get => _showAnimations;
+            set => SetProperty(ref _showAnimations, value);
+        }
     }
 }

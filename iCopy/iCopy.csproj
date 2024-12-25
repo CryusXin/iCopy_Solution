@@ -57,12 +57,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Messages\WindowMessages.cs" />
+    <Compile Include="Models\PasteContentWindowSettings.cs" />
     <Compile Include="Models\UserModel.cs" />
+    <Compile Include="Services\KeyboardService.cs" />
+    <Compile Include="Services\MessageService.cs" />
+    <Compile Include="Services\TrayIconService.cs" />
     <Compile Include="ViewModels\AboutViewModel.cs" />
     <Compile Include="ViewModels\ControlViewModel.cs" />
     <Compile Include="ViewModels\GeneralViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\PasteContentViewModel.cs" />
+    <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="ViewModels\ServerViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\AboutView.xaml.cs">
@@ -84,6 +91,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Views\PasteContentView.xaml.cs">
+      <DependentUpon>PasteContentView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ServerView.xaml.cs">
       <DependentUpon>ServerView.xaml</DependentUpon>
     </Compile>
@@ -104,6 +114,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MainView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PasteContentView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -143,6 +157,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\image\logo.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\image\logotp.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

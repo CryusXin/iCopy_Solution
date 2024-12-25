@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Drawing;
-using System.Reflection;
 using System.Windows;
-using System.Windows.Forms;
+using iCopy.Services;
 using iCopy.ViewModels;
-using Application = System.Windows.Forms.Application;
-using ContextMenu = System.Windows.Forms.ContextMenu;
-using MenuItem = System.Windows.Forms.MenuItem;
+
 
 namespace iCopy.Views
 {
@@ -15,62 +11,76 @@ namespace iCopy.Views
     /// </summary>
     public partial class MainView : Window
     {
-        private NotifyIcon notifyIcon;
-        public MainView()
+        private readonly TrayIconService _trayIconService;
+        private readonly MainViewModel _viewModel;
+        private static MainView _instance;
+        private bool _isProcessingClose = false;
+
+        public static MainView Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new MainView();
+                }
+                return _instance;
+            }
+        }
+
+        private MainView()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
-            // 创建托盘图标
-            notifyIcon = new NotifyIcon();
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            string iconPath = System.IO.Path.Combine(Application.StartupPath, "Assets", "image", "logo.ico");
-            Icon originalIcon = new Icon(iconPath);
-            notifyIcon.Icon = originalIcon;
-            notifyIcon.Visible = true;
-            notifyIcon.Text = "iCopy";
+            _viewModel = new MainViewModel();
+            DataContext = _viewModel;
 
-            // 创建右键菜单
-            ContextMenu contextMenu = new ContextMenu();
-            MenuItem openMenuItem = new MenuItem("打开面板", Open_Click);
-            // MenuItem aboutMenuItem = new MenuItem("关于", About_Click);
-            MenuItem exitMenuItem = new MenuItem("退出", Exit_Click);
-            contextMenu.MenuItems.Add(openMenuItem);
-            contextMenu.MenuItems.Add(exitMenuItem);
-            notifyIcon.ContextMenu = contextMenu;
+            // 初始化托盘服务
+            _trayIconService = TrayIconService.Instance;
+            _trayIconService.SetMainView(this);  // 设置MainView引用
 
-            // 双击图标显示窗口
-            notifyIcon.DoubleClick += NotifyIcon_DoubleClick;
+            // 注册窗口事件
+            Closing += Window_Closing;
         }
+
+        public static void ShowMainView()
+        {
+            Instance.Show();
+            Instance.Activate();
+        }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            e.Cancel = true;
-            this.Hide(); // 隐藏窗口
+            if (_isProcessingClose)
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            _isProcessingClose = true;
+            try
+            {
+                // 如果是用户点击关闭按钮，则只是隐藏窗口
+                if (!_viewModel.IsExiting)
+                {
+                    e.Cancel = true;
+                    _trayIconService.HideMainWindow();
+                }
+                else
+                {
+                    _instance = null; // 清除实例引用
+                }
+            }
+            finally
+            {
+                _isProcessingClose = false;
+            }
         }
 
-        private void Open_Click(object sender, EventArgs e)
+        protected override void OnClosed(EventArgs e)
         {
-            this.Show(); // 显示窗口
-            this.WindowState = WindowState.Normal; // 窗口状态恢复为正常
+            _trayIconService.Dispose();
+            _instance = null; // 清除实例引用
+            base.OnClosed(e);
         }
-
-        // private void About_Click(object sender, EventArgs e)
-        // {
-        //     AboutWindow aboutWindow = new AboutWindow();
-        //     aboutWindow.Show();
-        // }
-
-        private void Exit_Click(object sender, EventArgs e)
-        {
-            notifyIcon.Visible = false; // 隐藏托盘图标
-            notifyIcon.Dispose();
-            System.Windows.Application.Current.Shutdown(); // 关闭应用程序
-        }
-
-        private void NotifyIcon_DoubleClick(object sender, EventArgs e)
-        {
-            this.Show(); // 显示窗口
-            this.WindowState = WindowState.Normal; // 窗口状态恢复为正常
-        }
-
     }
 }
