@@ -145,5 +145,27 @@ namespace iCopy.Services
             }
             return items;
         }
+
+        public void DeleteClipboardItem(int id)
+        {
+            try
+            {
+                using (var connection = new SqliteConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "DELETE FROM ClipboardItems WHERE Id = @Id";
+                        command.Parameters.AddWithValue("@Id", id);
+                        command.ExecuteNonQuery();
+                        //System.Diagnostics.Debug.WriteLine($"Deleted clipboard item with id: {id}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in DeleteClipboardItem: {ex.Message}");
+            }
+        }
     }
 }

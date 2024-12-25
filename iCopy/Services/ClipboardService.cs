@@ -94,7 +94,7 @@ namespace iCopy.Services
                         {
                             _databaseService.AddClipboardItem(clipboardItem);
                             ClipboardItems.Insert(0, clipboardItem);
-                            System.Diagnostics.Debug.WriteLine($"Added clipboard item: {text}");
+                            //System.Diagnostics.Debug.WriteLine($"Added clipboard item: {text}");
                         });
                     }
                 }

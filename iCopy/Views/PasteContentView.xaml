@@ -20,38 +20,66 @@
                          Direction="0"
                          ShadowDepth="0"
                          Color="#22000000"/>
-        
-        <!-- ScrollViewer样式 -->
-        <Style x:Key="ScrollViewerStyle" TargetType="ScrollViewer">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ScrollViewer">
-                        <Grid>
-                            <ScrollContentPresenter />
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
-        <!-- TextBox样式 -->
-        <Style x:Key="ContentTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderThickness="0">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                        Style="{StaticResource ScrollViewerStyle}"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+        <!-- ListBox样式 -->
+        <Style x:Key="ClipboardListBoxStyle" TargetType="ListBox">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="AcceptsReturn" Value="True"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="VirtualizingPanel.ScrollUnit" Value="Item"/>
+            <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
+            <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
+        </Style>
+
+        <!-- ListBoxItem样式 -->
+        <Style x:Key="ClipboardItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Margin" Value="5,5,5,0"/>
             <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Border"
+                                Background="White"
+                                CornerRadius="8"
+                                BorderThickness="1"
+                                BorderBrush="#E0E0E0"
+                                Effect="{StaticResource DropShadowEffect}">
+                            <Grid Margin="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="{Binding Content}"
+                                         TextWrapping="Wrap"
+                                         MaxHeight="100"
+                                         ToolTip="{Binding Content}"
+                                         Foreground="#333333"/>
+
+                                <Button Grid.Column="1"
+                                        Width="20"
+                                        Height="20"
+                                        Margin="5,0,0,0"
+                                        Content="×"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Foreground="#666666"
+                                        Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                        CommandParameter="{Binding}"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#F8F8F8"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#2196F3"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
@@ -86,27 +114,13 @@
             </Border>
 
             <!--  内容区域  -->
-            <Grid Grid.Row="1" Margin="10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <ListBox
-                    ItemsSource="{Binding ClipboardItems}"
-                    SelectedItem="{Binding SelectedItem}"
-                    BorderThickness="0"
-                    Background="Transparent">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock 
-                                Text="{Binding Content}"
-                                TextWrapping="Wrap"
-                                Margin="5"
-                                MaxHeight="50"/>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </Grid>
+            <ListBox
+                Grid.Row="1"
+                Margin="10"
+                ItemsSource="{Binding ClipboardItems}"
+                SelectedItem="{Binding SelectedItem}"
+                Style="{StaticResource ClipboardListBoxStyle}"
+                ItemContainerStyle="{StaticResource ClipboardItemStyle}"/>
 
             <!--  倒计时显示  -->
             <TextBlock

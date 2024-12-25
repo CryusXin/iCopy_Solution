@@ -14,6 +14,7 @@ namespace iCopy.ViewModels
     {
         private readonly MessageService _messageService;
         private readonly ClipboardService _clipboardService;
+        private readonly DatabaseService _databaseService;
         private PasteContentWindowSettings _windowSettings;
         private string _content;
         private readonly DispatcherTimer _autoCloseTimer;
@@ -21,10 +22,18 @@ namespace iCopy.ViewModels
         private ClipboardItem _selectedItem;
 
         private ICommand _closeWindowCommand;
+        private ICommand _deleteItemCommand;
+
         public ICommand CloseWindowCommand
         {
             get => _closeWindowCommand;
             private set => SetProperty(ref _closeWindowCommand, value);
+        }
+
+        public ICommand DeleteItemCommand
+        {
+            get => _deleteItemCommand;
+            private set => SetProperty(ref _deleteItemCommand, value);
         }
 
         public PasteContentWindowSettings WindowSettings
@@ -55,7 +64,7 @@ namespace iCopy.ViewModels
                 if (SetProperty(ref _selectedItem, value) && value != null)
                 {
                     Content = value.Content;
-                    Clipboard.SetText(value.Content);
+                    System.Windows.Clipboard.SetText(value.Content);
                 }
             }
         }
@@ -64,6 +73,7 @@ namespace iCopy.ViewModels
         {
             _messageService = MessageService.Instance;
             _clipboardService = ClipboardService.Instance;
+            _databaseService = DatabaseService.Instance;
             InitializeWindowSettings();
             InitializeCommands();
 
@@ -97,8 +107,8 @@ namespace iCopy.ViewModels
                 double windowHeight = screenHeight - (3 * margin);
                 double windowWidth = 300; // 固定宽度为300像素
 
-                System.Diagnostics.Debug.WriteLine($"Screen size: {screenWidth}x{screenHeight}");
-                System.Diagnostics.Debug.WriteLine($"Window size: {windowWidth}x{windowHeight}");
+                //System.Diagnostics.Debug.WriteLine($"Screen size: {screenWidth}x{screenHeight}");
+                //System.Diagnostics.Debug.WriteLine($"Window size: {windowWidth}x{windowHeight}");
 
                 WindowSettings = new PasteContentWindowSettings
                 {
@@ -111,7 +121,7 @@ namespace iCopy.ViewModels
                     AutoCloseSeconds = 10
                 };
 
-                System.Diagnostics.Debug.WriteLine($"Window position: Left={WindowSettings.Left}, Top={WindowSettings.Top}");
+                //System.Diagnostics.Debug.WriteLine($"Window position: Left={WindowSettings.Left}, Top={WindowSettings.Top}");
             }
             catch (Exception ex)
             {
@@ -146,6 +156,25 @@ namespace iCopy.ViewModels
             }
         }
 
+        private void DeleteItem(ClipboardItem item)
+        {
+            if (item != null)
+            {
+                try
+                {
+                    // 从数据库删除
+                    _databaseService.DeleteClipboardItem(item.Id);
+                    // 从列表中删除
+                    ClipboardItems.Remove(item);
+                    //System.Diagnostics.Debug.WriteLine($"Deleted clipboard item: {item.Content}");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error deleting clipboard item: {ex.Message}");
+                }
+            }
+        }
+
         private void InitializeCommands()
         {
             try
@@ -162,6 +191,8 @@ namespace iCopy.ViewModels
                         System.Diagnostics.Debug.WriteLine($"Error executing close command: {ex.Message}");
                     }
                 });
+
+                DeleteItemCommand = new RelayCommand<ClipboardItem>(DeleteItem);
             }
             catch (Exception ex)
             {
