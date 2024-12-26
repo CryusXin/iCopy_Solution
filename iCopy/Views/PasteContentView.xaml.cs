@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Controls;
+using System.Windows.Media.Animation;
 using iCopy.Messages;
 using iCopy.Services;
 using iCopy.ViewModels;
@@ -33,6 +35,24 @@ namespace iCopy.Views
                     _messageService.Send(new CloseWindowMessage());
                 }
             };
+        }
+
+        public void ShowCopySuccess()
+        {
+            if (FindName("CopySuccessTip") is Border copySuccessTip)
+            {
+                copySuccessTip.Visibility = Visibility.Visible;
+                var timer = new System.Windows.Threading.DispatcherTimer
+                {
+                    Interval = TimeSpan.FromSeconds(1)
+                };
+                timer.Tick += (s, e) =>
+                {
+                    copySuccessTip.Visibility = Visibility.Collapsed;
+                    timer.Stop();
+                };
+                timer.Start();
+            }
         }
 
         private void SafeClose()

@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Windows;
 using iCopy.Models;
 using System.Windows.Threading;
-using System.Windows;
 using iCopy.Services;
 using iCopy.Messages;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
 using System.Linq;
+using iCopy.Views;
 
 namespace iCopy.ViewModels
 {
@@ -63,8 +64,22 @@ namespace iCopy.ViewModels
             {
                 if (SetProperty(ref _selectedItem, value) && value != null)
                 {
-                    Content = value.Content;
-                    System.Windows.Clipboard.SetText(value.Content);
+                    try
+                    {
+                        Content = value.Content;
+                        System.Windows.Clipboard.SetText(value.Content);
+
+                        // 重置自动关闭计时器
+                        RemainingSeconds = WindowSettings.AutoCloseSeconds;
+
+                        // 显示复制成功提示
+                        var window = System.Windows.Application.Current.Windows.OfType<PasteContentView>().FirstOrDefault();
+                        window?.ShowCopySuccess();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error copying content: {ex.Message}");
+                    }
                 }
             }
         }
@@ -87,11 +102,8 @@ namespace iCopy.ViewModels
             RemainingSeconds = WindowSettings.AutoCloseSeconds;
             _autoCloseTimer.Start();
 
-            // 如果有剪贴板历史，选择最新的一项
-            if (ClipboardItems.Any())
-            {
-                SelectedItem = ClipboardItems.First();
-            }
+            // 加载剪贴板历史
+            LoadClipboardItems();
         }
 
         private void InitializeWindowSettings()
@@ -213,6 +225,13 @@ namespace iCopy.ViewModels
             {
                 System.Diagnostics.Debug.WriteLine($"Error in Cleanup: {ex.Message}");
             }
+        }
+
+        private void LoadClipboardItems()
+        {
+            // 只加载数据，不自动选择
+            Content = string.Empty;
+            _selectedItem = null;
         }
     }
 }
