@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/badge/license-GPL-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/CryusXin/iCopy)](https://github.com/CryusXin/iCopy/releases)
 
-[English](./README_EN.md) | 简体中文
+[English](./README.md) | 简体中文
 
 ## 🚀 特性
 
