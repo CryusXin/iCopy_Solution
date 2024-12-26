@@ -200,5 +200,8 @@
     <PackageReference Include="SQLitePCLRaw.provider.dynamic_cdecl" Version="2.1.0" />
     <PackageReference Include="SQLitePCLRaw.core" Version="2.1.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Views\logo.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
