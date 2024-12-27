@@ -84,6 +84,12 @@ namespace iCopy.Services
                     string text = System.Windows.Clipboard.GetText();
                     if (!string.IsNullOrWhiteSpace(text))
                     {
+                        // 检查是否已存在相同内容
+                        if (ClipboardItems.Any(item => item.Content == text))
+                        {
+                            return;
+                        }
+
                         var clipboardItem = new ClipboardItem
                         {
                             Content = text,
@@ -94,7 +100,6 @@ namespace iCopy.Services
                         {
                             _databaseService.AddClipboardItem(clipboardItem);
                             ClipboardItems.Insert(0, clipboardItem);
-                            //System.Diagnostics.Debug.WriteLine($"Added clipboard item: {text}");
                         });
                     }
                 }
