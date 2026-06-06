@@ -110,13 +110,6 @@ English | [简体中文](./README_zh.md)
 - Create a Pull Request
 - Wait for merge
 
-## 📄 License
-This project is released under the GPL-3.0 License. The GPL-3.0 License allows for broad use, including commercial purposes, but requires compliance with specific terms, such as:
-- Retaining the original copyright notice and license terms when distributing software copies based on this project.
-- Providing source code in open-source form when modifications are made and redistributed.
-
-However, this project additionally specifies that no commercial use is permitted in any form. If you're using this project for personal learning and communication purposes only, you may follow the GPL-3.0 License. For more detailed information about the GPL-3.0 License, please see the [LICENSE](LICENSE) file.
-
 ## 📧 Contact Us
 - Email: iCopy@ssslk.com
 - Telegram: @iCopy
